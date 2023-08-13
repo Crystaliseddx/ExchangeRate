@@ -1,10 +1,12 @@
+package controllers;
+
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
 
-@WebServlet(name = "CurrenciesServlet", value = "/currencies")
-public class CurrenciesServlet extends HttpServlet {
+@WebServlet(name = "CurrencyServlet", value = "/currency")
+public class CurrencyServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
