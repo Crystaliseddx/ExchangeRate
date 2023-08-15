@@ -21,4 +21,20 @@ public class Currency {
     public void setSign(String sign) {
         this.sign = sign;
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getFullname() {
+        return fullname;
+    }
+
+    public String getSign() {
+        return sign;
+    }
 }
