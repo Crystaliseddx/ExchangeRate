@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CurrencyDAO {
-    private static Connection connection = ConnectionDBA.getConnection();
+    private static Connection connection = ConnectionDB.getConnectionDB().getConnection();
 
     public List<Currency> getCurrencies() {
         List<Currency> currencies = new ArrayList<>();

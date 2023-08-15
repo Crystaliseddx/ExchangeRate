@@ -1,6 +1,5 @@
 package dao;
 
-import models.Currency;
 import models.ExchangeRate;
 
 import java.sql.Connection;
@@ -11,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExchangeRateDAO {
-    private static Connection connection = ConnectionDBA.getConnection();
+    private static Connection connection = ConnectionDB.getConnectionDB().getConnection();
     public List<ExchangeRate> getExchangeRates() {
         List<ExchangeRate> exchangeRates = new ArrayList<>();
         try {
