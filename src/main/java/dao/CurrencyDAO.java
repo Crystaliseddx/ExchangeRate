@@ -2,29 +2,13 @@ package dao;
 
 import models.Currency;
 
-import java.nio.file.Path;
 import java.sql.*;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CurrencyDAO {
-    private static Path path = Path.of("/main/resources/Currencies.db");
-    private static final String URL = "jdbc:sqlite:" + path.toString();
-    private static Connection connection;
-
-    public void openConnection() {
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            connection = DriverManager.getConnection(URL);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private static Connection connection = ConnectionDBA.getConnection();
 
     public List<Currency> getCurrencies() {
         List<Currency> currencies = new ArrayList<>();
