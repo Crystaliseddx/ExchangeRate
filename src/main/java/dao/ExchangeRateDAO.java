@@ -14,13 +14,14 @@ public class ExchangeRateDAO {
     public List<ExchangeRate> getExchangeRates() {
         List<ExchangeRate> exchangeRates = new ArrayList<>();
         try {
-            ExchangeRate exchangeRate = new ExchangeRate();
             PreparedStatement statement = connection.prepareStatement
-                    ("SELECT * FROM exchangerates");
+                    ("SELECT * FROM exchangerates JOIN currencies ON (exchangerates.BASECURRENCYID = currencies.ID)");
 
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
+                ExchangeRate exchangeRate = new ExchangeRate();
+
                 exchangeRate.setId(resultSet.getInt("ID"));
                 exchangeRate.setBaseCurrencyId(resultSet.getInt("BASECURRENCYID"));
                 exchangeRate.setTargetCurrencyId(resultSet.getInt("TARGETCURRENCYID"));

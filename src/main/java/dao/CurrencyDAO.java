@@ -13,12 +13,12 @@ public class CurrencyDAO {
     public List<Currency> getCurrencies() {
         List<Currency> currencies = new ArrayList<>();
         try {
-            Currency currency = new Currency();
+
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM currencies");
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-
+                Currency currency = new Currency();
                 currency.setId(resultSet.getInt("ID"));
                 currency.setCode(resultSet.getString("CODE"));
                 currency.setFullname(resultSet.getString("FULLNAME"));

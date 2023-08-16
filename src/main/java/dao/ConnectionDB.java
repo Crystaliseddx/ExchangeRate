@@ -7,8 +7,7 @@ import java.sql.SQLException;
 
 public class ConnectionDB {
     private static ConnectionDB instance;
-    private Path path = Path.of("/main/resources/Currencies.db");
-    private String URL = "jdbc:sqlite:" + path.toString();
+    private String URL = "jdbc:sqlite:C:\\Users\\Konstantin\\Desktop\\Projects\\CurrencyExchange\\src\\main\\resources\\Currencies.db";
     private Connection connection;
 
     private ConnectionDB() {
