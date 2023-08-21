@@ -1,6 +1,8 @@
-package models;
+package dto;
 
-public class ExchangeRate {
+import models.Currency;
+
+public class ExchangeRateDTO {
     private int id;
     private int baseCurrencyId;
     private Currency baseCurrency;

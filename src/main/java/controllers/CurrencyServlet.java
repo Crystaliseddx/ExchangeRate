@@ -1,6 +1,9 @@
 package controllers;
 
 import dao.CurrencyDAO;
+import dto.CurrencyDTO;
+import dto.mappers.ConverterJSON;
+import dto.mappers.CurrencyMapper;
 import models.Currency;
 
 import javax.servlet.*;
@@ -8,8 +11,6 @@ import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.List;
 
 @WebServlet(name = "CurrencyServlet", value = "/currency/*")
 public class CurrencyServlet extends HttpServlet {
@@ -17,16 +18,18 @@ public class CurrencyServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         CurrencyDAO currencyDAO = new CurrencyDAO();
         ConverterJSON converter = new ConverterJSON();
+        CurrencyDTO currencyDTO;
+        CurrencyMapper currencyMapper = new CurrencyMapper();
 
-        response.setContentType("text/html; charset=UTF-8");
-        response.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json; charset=UTF-8");
         PrintWriter pw = response.getWriter();
 
         String[] urlArray = request.getRequestURL().toString().split("/");
         String url = urlArray[urlArray.length-1].toUpperCase();
 
-        Currency currency = currencyDAO.getCurrency(url);
-        String json = converter.convertToJSON(currency);
+        Currency currency = currencyDAO.getCurrencyByCode(url);
+        currencyDTO = currencyMapper.getCurrencyDTO(currency);
+        String json = converter.convertToJSON(currencyDTO);
         pw.println(json);
     }
 

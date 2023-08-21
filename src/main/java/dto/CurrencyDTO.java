@@ -1,6 +1,6 @@
-package models;
+package dto;
 
-public class Currency {
+public class CurrencyDTO {
     private int id;
     private String code;
     private String name;
@@ -38,3 +38,4 @@ public class Currency {
         return sign;
     }
 }
+

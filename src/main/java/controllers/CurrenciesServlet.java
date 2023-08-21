@@ -1,7 +1,9 @@
 package controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dao.CurrencyDAO;
+import dto.CurrencyDTO;
+import dto.mappers.ConverterJSON;
+import dto.mappers.CurrencyMapper;
 import models.Currency;
 
 import javax.servlet.*;
@@ -18,16 +20,17 @@ public class CurrenciesServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         CurrencyDAO currencyDAO = new CurrencyDAO();
         ConverterJSON converter = new ConverterJSON();
+        CurrencyDTO currencyDTO;
+        CurrencyMapper currencyMapper = new CurrencyMapper();
 
-        response.setContentType("text/html; charset=UTF-8");
-        response.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json; charset=UTF-8");
         PrintWriter pw = response.getWriter();
-
 
         List<Currency> currencies = currencyDAO.getCurrencies();
         String[] jsonArray = new String[currencies.size()];
         for (int i = 0; i < jsonArray.length; i++) {
-            jsonArray[i] = converter.convertToJSON(currencies.get(i));
+            currencyDTO = currencyMapper.getCurrencyDTO(currencies.get(i));
+            jsonArray[i] = converter.convertToJSON(currencyDTO);
         }
         pw.println(Arrays.toString(jsonArray));
     }

@@ -1,5 +1,6 @@
 package dao;
 
+import models.Currency;
 import models.ExchangeRate;
 
 import java.sql.Connection;
@@ -15,18 +16,16 @@ public class ExchangeRateDAO {
         List<ExchangeRate> exchangeRates = new ArrayList<>();
         try {
             PreparedStatement statement = connection.prepareStatement
-                    ("SELECT * FROM exchangerates JOIN currencies ON (exchangerates.BASECURRENCYID = currencies.ID)");
+                    ("SELECT er.ID, er.BaseCurrencyID, er.TargetCurrencyID, er.Rate, " +
+                            "bc.ID bcID, bc.Code bcCode, bc.FullName bcFullName, bc.Sign bcSign, " +
+                            "tc.ID tcID, tc.Code tcCode, tc.FullName tcFullName, tc.Sign tcSign " +
+                            "FROM exchangerates er " +
+                            "JOIN currencies bc ON (er.BaseCurrencyID = bc.ID) " +
+                            "JOIN currencies tc ON (er.TargetCurrencyID = tc.ID)");
 
             ResultSet resultSet = statement.executeQuery();
-
             while (resultSet.next()) {
-                ExchangeRate exchangeRate = new ExchangeRate();
-
-                exchangeRate.setId(resultSet.getInt("ID"));
-                exchangeRate.setBaseCurrencyId(resultSet.getInt("BASECURRENCYID"));
-                exchangeRate.setTargetCurrencyId(resultSet.getInt("TARGETCURRENCYID"));
-                exchangeRate.setRate(resultSet.getDouble("RATE"));
-
+                ExchangeRate exchangeRate = getExchangeRate(resultSet);
                 exchangeRates.add(exchangeRate);
             }
         } catch (SQLException e) {
@@ -35,22 +34,53 @@ public class ExchangeRateDAO {
         return exchangeRates;
     }
 
-    public ExchangeRate getExchangeRate(String baseCurrencyId, String targetCurrencyId) {
+    public ExchangeRate getExchangeRateByCurrencyCodes(String baseCurrencyCode, String targetCurrencyCode) {
         ExchangeRate exchangeRate = new ExchangeRate();
         try {
             PreparedStatement statement = connection.prepareStatement
-                    ("SELECT * FROM exchangerates WHERE BASECURRENCYID = ? AND TARGETCURRENCYID = ?");
+                    ("SELECT er.ID, er.BaseCurrencyID, er.TargetCurrencyID, er.Rate, " +
+                            "bc.ID bcID, bc.Code bcCode, bc.FullName bcFullName, bc.Sign bcSign, " +
+                            "tc.ID tcID, tc.Code tcCode, tc.FullName tcFullName, tc.Sign tcSign " +
+                            "FROM exchangerates er " +
+                            "JOIN currencies bc ON (er.BaseCurrencyID = bc.ID) " +
+                            "JOIN currencies tc ON (er.TargetCurrencyID = tc.ID) " +
+                            "WHERE bcCode = ? AND tcCode = ?");
 
-            statement.setString(1, baseCurrencyId);
-            statement.setString(2, targetCurrencyId);
+            statement.setString(1, baseCurrencyCode);
+            statement.setString(2, targetCurrencyCode);
 
             ResultSet resultSet = statement.executeQuery();
+            exchangeRate = getExchangeRate(resultSet);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return exchangeRate;
+    }
+
+    private ExchangeRate getExchangeRate(ResultSet resultSet) {
+
+        ExchangeRate exchangeRate = new ExchangeRate();
+        Currency baseCurrency = new Currency();
+        Currency targetCurrency = new Currency();
+
+        try {
+            baseCurrency.setId(resultSet.getInt("bcID"));
+            baseCurrency.setCode(resultSet.getString("bcCode"));
+            baseCurrency.setName(resultSet.getString("bcFullName"));
+            baseCurrency.setSign(resultSet.getString("bcSign"));
+
+            targetCurrency.setId(resultSet.getInt("tcID"));
+            targetCurrency.setCode(resultSet.getString("tcCode"));
+            targetCurrency.setName(resultSet.getString("tcFullName"));
+            targetCurrency.setSign(resultSet.getString("tcSign"));
 
             exchangeRate.setId(resultSet.getInt("ID"));
-            exchangeRate.setBaseCurrencyId(resultSet.getInt("BASECURRENCYID"));
-            exchangeRate.setTargetCurrencyId(resultSet.getInt("TARGETCURRENCYID"));
-            exchangeRate.setRate(resultSet.getDouble("RATE"));
-
+            exchangeRate.setBaseCurrencyId(resultSet.getInt("BaseCurrencyID"));
+            exchangeRate.setTargetCurrencyId(resultSet.getInt("TargetCurrencyID"));
+            exchangeRate.setRate(resultSet.getDouble("Rate"));
+            exchangeRate.setBaseCurrency(baseCurrency);
+            exchangeRate.setTargetCurrency(targetCurrency);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

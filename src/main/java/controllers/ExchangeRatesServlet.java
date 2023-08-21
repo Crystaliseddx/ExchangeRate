@@ -1,8 +1,9 @@
 package controllers;
 
-import dao.CurrencyDAO;
 import dao.ExchangeRateDAO;
-import models.Currency;
+import dto.ExchangeRateDTO;
+import dto.mappers.ConverterJSON;
+import dto.mappers.ExchangeRateMapper;
 import models.ExchangeRate;
 
 import javax.servlet.*;
@@ -19,16 +20,17 @@ public class ExchangeRatesServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ExchangeRateDAO exchangeRateDAO = new ExchangeRateDAO();
         ConverterJSON converter = new ConverterJSON();
+        ExchangeRateDTO exchangeRateDTO;
+        ExchangeRateMapper exchangeRateMapper = new ExchangeRateMapper();
 
-        response.setContentType("text/html; charset=UTF-8");
-        response.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json; charset=UTF-8");
         PrintWriter pw = response.getWriter();
-
 
         List<ExchangeRate> exchangeRates = exchangeRateDAO.getExchangeRates();
         String[] jsonArray = new String[exchangeRates.size()];
         for (int i = 0; i < jsonArray.length; i++) {
-            jsonArray[i] = converter.convertToJSON(exchangeRates.get(i));
+            exchangeRateDTO = exchangeRateMapper.getExchangeRateDTO(exchangeRates.get(i));
+            jsonArray[i] = converter.convertToJSON(exchangeRateDTO);
         }
         pw.println(Arrays.toString(jsonArray));
     }

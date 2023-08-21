@@ -13,17 +13,10 @@ public class CurrencyDAO {
     public List<Currency> getCurrencies() {
         List<Currency> currencies = new ArrayList<>();
         try {
-
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM currencies");
             ResultSet resultSet = statement.executeQuery();
-
             while (resultSet.next()) {
-                Currency currency = new Currency();
-                currency.setId(resultSet.getInt("ID"));
-                currency.setCode(resultSet.getString("CODE"));
-                currency.setFullname(resultSet.getString("FULLNAME"));
-                currency.setSign(resultSet.getString("SIGN"));
-
+                Currency currency = getCurrency(resultSet);
                 currencies.add(currency);
             }
         } catch (SQLException e) {
@@ -32,18 +25,25 @@ public class CurrencyDAO {
         return currencies;
     }
 
-    public Currency getCurrency(String code) {
-        Currency currency = new Currency();
+    public Currency getCurrencyByCode (String code) {
+        Currency currency;
         try {
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM currencies WHERE CODE = ?");
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM currencies WHERE Code = ?");
             statement.setString(1, code);
             ResultSet resultSet = statement.executeQuery();
-
+            currency = getCurrency(resultSet);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return currency;
+    }
+    private Currency getCurrency(ResultSet resultSet) {
+        Currency currency = new Currency();
+        try {
             currency.setId(resultSet.getInt("ID"));
-            currency.setCode(resultSet.getString("CODE"));
-            currency.setFullname(resultSet.getString("FULLNAME"));
-            currency.setSign(resultSet.getString("SIGN"));
-
+            currency.setCode(resultSet.getString("Code"));
+            currency.setName(resultSet.getString("FullName"));
+            currency.setSign(resultSet.getString("Sign"));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -53,10 +53,10 @@ public class CurrencyDAO {
     public void saveCurrency(Currency currency) {
         try {
             PreparedStatement statement = connection.prepareStatement
-                    ("INSERT INTO currencies (CODE, FULLNAME, SIGN) VALUES (?, ?, ?)");
+                    ("INSERT INTO currencies (Code, FullName, Sign) VALUES (?, ?, ?)");
 
             statement.setString(1, currency.getCode());
-            statement.setString(2, currency.getFullname());
+            statement.setString(2, currency.getName());
             statement.setString(3, currency.getSign());
 
             statement.executeUpdate();
