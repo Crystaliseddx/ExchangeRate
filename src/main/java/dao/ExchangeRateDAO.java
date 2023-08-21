@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExchangeRateDAO {
-    private static Connection connection = ConnectionDB.getConnectionDB().getConnection();
-    public List<ExchangeRate> getExchangeRates() {
+    private static ConnectionPool connectionPool = ConnectionPool.createConnectionPool();
+
+    public List<ExchangeRate> getExchangeRates() throws SQLException {
+        Connection connection = connectionPool.getConnection();
         List<ExchangeRate> exchangeRates = new ArrayList<>();
         try {
             PreparedStatement statement = connection.prepareStatement
@@ -30,11 +32,14 @@ public class ExchangeRateDAO {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            connectionPool.releaseConnection(connection);
         }
         return exchangeRates;
     }
 
-    public ExchangeRate getExchangeRateByCurrencyCodes(String baseCurrencyCode, String targetCurrencyCode) {
+    public ExchangeRate getExchangeRateByCurrencyCodes(String baseCurrencyCode, String targetCurrencyCode) throws SQLException {
+        Connection connection = connectionPool.getConnection();
         ExchangeRate exchangeRate = new ExchangeRate();
         try {
             PreparedStatement statement = connection.prepareStatement
@@ -54,12 +59,13 @@ public class ExchangeRateDAO {
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            connectionPool.releaseConnection(connection);
         }
         return exchangeRate;
     }
 
     private ExchangeRate getExchangeRate(ResultSet resultSet) {
-
         ExchangeRate exchangeRate = new ExchangeRate();
         Currency baseCurrency = new Currency();
         Currency targetCurrency = new Currency();
@@ -87,7 +93,8 @@ public class ExchangeRateDAO {
         return exchangeRate;
     }
 
-    public void saveExchangeRate(ExchangeRate exchangeRate) {
+    public void saveExchangeRate(ExchangeRate exchangeRate) throws SQLException {
+        Connection connection = connectionPool.getConnection();
         try {
             PreparedStatement statement = connection.prepareStatement
                     ("INSERT INTO exchangerates (BASECURRENCYID, TARGETCURRENCYID, RATE) VALUES (?, ?, ?)");
@@ -100,10 +107,13 @@ public class ExchangeRateDAO {
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            connectionPool.releaseConnection(connection);
         }
     }
 
-    public void updateExchangeRate(ExchangeRate exchangeRate) {
+    public void updateExchangeRate(ExchangeRate exchangeRate) throws SQLException {
+        Connection connection = connectionPool.getConnection();
         try {
             PreparedStatement statement = connection.prepareStatement
                     ("UPDATE exchangerates SET RATE = ? WHERE BASECURRENCYID = ? AND TARGETCURRENCYID = ?");
@@ -116,6 +126,8 @@ public class ExchangeRateDAO {
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            connectionPool.releaseConnection(connection);
         }
     }
 }

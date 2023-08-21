@@ -8,9 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CurrencyDAO {
-    private static Connection connection = ConnectionDB.getConnectionDB().getConnection();
+    private static ConnectionPool connectionPool = ConnectionPool.createConnectionPool();
 
-    public List<Currency> getCurrencies() {
+    public List<Currency> getCurrencies() throws SQLException {
+        Connection connection = connectionPool.getConnection();
+
         List<Currency> currencies = new ArrayList<>();
         try {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM currencies");
@@ -21,11 +23,14 @@ public class CurrencyDAO {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            connectionPool.releaseConnection(connection);
         }
         return currencies;
     }
 
-    public Currency getCurrencyByCode (String code) {
+    public Currency getCurrencyByCode (String code) throws SQLException {
+        Connection connection = connectionPool.getConnection();
         Currency currency;
         try {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM currencies WHERE Code = ?");
@@ -34,6 +39,8 @@ public class CurrencyDAO {
             currency = getCurrency(resultSet);
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            connectionPool.releaseConnection(connection);
         }
         return currency;
     }
@@ -50,7 +57,8 @@ public class CurrencyDAO {
         return currency;
     }
 
-    public void saveCurrency(Currency currency) {
+    public void saveCurrency(Currency currency) throws SQLException {
+        Connection connection = connectionPool.getConnection();
         try {
             PreparedStatement statement = connection.prepareStatement
                     ("INSERT INTO currencies (Code, FullName, Sign) VALUES (?, ?, ?)");
@@ -63,6 +71,8 @@ public class CurrencyDAO {
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            connectionPool.releaseConnection(connection);
         }
     }
 }

@@ -11,6 +11,7 @@ import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,7 +27,12 @@ public class ExchangeRatesServlet extends HttpServlet {
         response.setContentType("application/json; charset=UTF-8");
         PrintWriter pw = response.getWriter();
 
-        List<ExchangeRate> exchangeRates = exchangeRateDAO.getExchangeRates();
+        List<ExchangeRate> exchangeRates = null;
+        try {
+            exchangeRates = exchangeRateDAO.getExchangeRates();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         String[] jsonArray = new String[exchangeRates.size()];
         for (int i = 0; i < jsonArray.length; i++) {
             exchangeRateDTO = exchangeRateMapper.getExchangeRateDTO(exchangeRates.get(i));

@@ -11,6 +11,7 @@ import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 
 @WebServlet(name = "ExchangeRateServlet", value = "/exchangeRate/*")
 public class ExchangeRateServlet extends HttpServlet {
@@ -30,7 +31,12 @@ public class ExchangeRateServlet extends HttpServlet {
         String targetCurrencyCode = currencyCodes.substring(3, 6);
 
 
-        ExchangeRate exchangeRate = exchangeRateDAO.getExchangeRateByCurrencyCodes(baseCurrencyCode, targetCurrencyCode);
+        ExchangeRate exchangeRate = null;
+        try {
+            exchangeRate = exchangeRateDAO.getExchangeRateByCurrencyCodes(baseCurrencyCode, targetCurrencyCode);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         exchangeRateDTO = exchangeRateMapper.getExchangeRateDTO(exchangeRate);
         String json = converter.convertToJSON(exchangeRateDTO);
         pw.println(json);

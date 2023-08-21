@@ -11,6 +11,7 @@ import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 
 @WebServlet(name = "CurrencyServlet", value = "/currency/*")
 public class CurrencyServlet extends HttpServlet {
@@ -27,7 +28,12 @@ public class CurrencyServlet extends HttpServlet {
         String[] urlArray = request.getRequestURL().toString().split("/");
         String url = urlArray[urlArray.length-1].toUpperCase();
 
-        Currency currency = currencyDAO.getCurrencyByCode(url);
+        Currency currency = null;
+        try {
+            currency = currencyDAO.getCurrencyByCode(url);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         currencyDTO = currencyMapper.getCurrencyDTO(currency);
         String json = converter.convertToJSON(currencyDTO);
         pw.println(json);
