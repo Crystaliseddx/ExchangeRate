@@ -19,4 +19,16 @@ public class ExchangeRateMapper {
 
         return exchangeRateDTO;
     }
+    public  ExchangeRate getExchangeRate(ExchangeRateDTO exchangeRateDTO) {
+        ExchangeRate exchangeRate = new ExchangeRate();
+
+        exchangeRate.setId(exchangeRateDTO.getId());
+        exchangeRate.setBaseCurrencyId(exchangeRateDTO.getBaseCurrencyId());
+        exchangeRate.setBaseCurrency(exchangeRateDTO.getBaseCurrency());
+        exchangeRate.setTargetCurrencyId(exchangeRateDTO.getTargetCurrencyId());
+        exchangeRate.setTargetCurrency(exchangeRateDTO.getTargetCurrency());
+        exchangeRate.setRate(exchangeRateDTO.getRate());
+
+        return exchangeRate;
+    }
 }

@@ -93,7 +93,7 @@ public class ExchangeRateDAO {
         return exchangeRate;
     }
 
-    public void saveExchangeRate(ExchangeRate exchangeRate) throws SQLException {
+    public ExchangeRate saveExchangeRate(ExchangeRate exchangeRate) throws SQLException {
         Connection connection = connectionPool.getConnection();
         try {
             PreparedStatement statement = connection.prepareStatement
@@ -110,6 +110,8 @@ public class ExchangeRateDAO {
         } finally {
             connectionPool.releaseConnection(connection);
         }
+        return exchangeRate = getExchangeRateByCurrencyCodes
+                (exchangeRate.getBaseCurrency().getCode(), exchangeRate.getTargetCurrency().getCode());
     }
 
     public void updateExchangeRate(ExchangeRate exchangeRate) throws SQLException {

@@ -52,7 +52,7 @@ public class CurrencyServlet extends HttpServlet {
         char[] buffer = new char[1024];
         int readChars;
         try(Reader reader = request.getReader()){
-            while ((readChars=reader.read(buffer))!=-1){
+            while ((readChars = reader.read(buffer)) != -1) {
                 body.append(buffer,0, readChars);
             }
         }
@@ -60,12 +60,11 @@ public class CurrencyServlet extends HttpServlet {
         Currency currency = currencyMapper.getCurrency(currencyDTO);
         try {
             currency = currencyDAO.saveCurrency(currency);
-            currencyDTO = currencyMapper.getCurrencyDTO(currency);
-            String json = converter.convertToJSON(currencyDTO);
-            pw.println(json);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
+        currencyDTO = currencyMapper.getCurrencyDTO(currency);
+        String json = converter.convertToJSON(currencyDTO);
+        pw.println(json);
     }
 }
