@@ -114,11 +114,11 @@ public class ExchangeRateDAO {
                 (exchangeRate.getBaseCurrency().getCode(), exchangeRate.getTargetCurrency().getCode());
     }
 
-    public void updateExchangeRate(ExchangeRate exchangeRate) throws SQLException {
+    public ExchangeRate updateExchangeRate(ExchangeRate exchangeRate) throws SQLException {
         Connection connection = connectionPool.getConnection();
         try {
             PreparedStatement statement = connection.prepareStatement
-                    ("UPDATE exchangerates SET RATE = ? WHERE BASECURRENCYID = ? AND TARGETCURRENCYID = ?");
+                    ("UPDATE exchangerates SET Rate = ? WHERE BaseCurrencyID = ? AND TargetCurrencyID = ?");
 
             statement.setDouble(1, exchangeRate.getRate());
             statement.setInt(2, exchangeRate.getBaseCurrencyId());
@@ -131,5 +131,7 @@ public class ExchangeRateDAO {
         } finally {
             connectionPool.releaseConnection(connection);
         }
+        return getExchangeRateByCurrencyCodes
+                (exchangeRate.getBaseCurrency().getCode(), exchangeRate.getTargetCurrency().getCode());
     }
 }
