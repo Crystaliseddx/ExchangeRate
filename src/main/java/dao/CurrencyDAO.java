@@ -57,7 +57,7 @@ public class CurrencyDAO {
         return currency;
     }
 
-    public void saveCurrency(Currency currency) throws SQLException {
+    public Currency saveCurrency(Currency currency) throws SQLException {
         Connection connection = connectionPool.getConnection();
         try {
             PreparedStatement statement = connection.prepareStatement
@@ -74,5 +74,6 @@ public class CurrencyDAO {
         } finally {
             connectionPool.releaseConnection(connection);
         }
+        return currency = getCurrencyByCode(currency.getCode());
     }
 }

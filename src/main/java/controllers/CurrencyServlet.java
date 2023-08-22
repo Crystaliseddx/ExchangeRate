@@ -11,6 +11,7 @@ import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.sql.SQLException;
 
 @WebServlet(name = "CurrencyServlet", value = "/currency/*")
@@ -41,6 +42,30 @@ public class CurrencyServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        ConverterJSON converter = new ConverterJSON();
+        CurrencyMapper currencyMapper = new CurrencyMapper();
+        CurrencyDAO currencyDAO = new CurrencyDAO();
+        PrintWriter pw = response.getWriter();
+
+        StringBuilder body = new StringBuilder();
+        char[] buffer = new char[1024];
+        int readChars;
+        try(Reader reader = request.getReader()){
+            while ((readChars=reader.read(buffer))!=-1){
+                body.append(buffer,0, readChars);
+            }
+        }
+        CurrencyDTO currencyDTO = converter.convertToCurrencyDTO(body.toString());
+        Currency currency = currencyMapper.getCurrency(currencyDTO);
+        try {
+            currency = currencyDAO.saveCurrency(currency);
+            currencyDTO = currencyMapper.getCurrencyDTO(currency);
+            String json = converter.convertToJSON(currencyDTO);
+            pw.println(json);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 }

@@ -14,4 +14,14 @@ public class CurrencyMapper {
 
         return currencyDTO;
     }
+    public Currency getCurrency(CurrencyDTO currencyDTO) {
+        Currency currency = new Currency();
+
+        currency.setId(currencyDTO.getId());
+        currency.setCode(currencyDTO.getCode());
+        currency.setName(currencyDTO.getName());
+        currency.setSign(currencyDTO.getSign());
+
+        return currency;
+    }
 }

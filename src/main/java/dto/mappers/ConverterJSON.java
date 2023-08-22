@@ -29,4 +29,13 @@ public class ConverterJSON {
         }
         return json;
     }
+    public CurrencyDTO convertToCurrencyDTO(String json) {
+        CurrencyDTO currencyDTO;
+        try {
+            currencyDTO = objectMapper.readValue(json, CurrencyDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return currencyDTO;
+    }
 }
