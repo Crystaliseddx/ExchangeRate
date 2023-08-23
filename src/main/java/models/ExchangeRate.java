@@ -1,17 +1,17 @@
 package models;
 
 public class ExchangeRate {
-    private int id;
+    private Integer id;
     private Currency baseCurrency;
     private Currency targetCurrency;
-    private double rate;
+    private Double rate;
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
 
-    public void setRate(double rate) {
+    public void setRate(Double rate) {
         this.rate = rate;
     }
 

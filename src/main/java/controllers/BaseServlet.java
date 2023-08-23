@@ -4,9 +4,9 @@ import controllers.responses.ErrorResponse;
 import controllers.responses.SuccessResponse;
 import dao.CurrencyDAO;
 import dao.ExchangeRateDAO;
-import utils.ConverterJSON;
+import utils.JSONConverter;
 import utils.ModelMapper;
-import utils.Validation;
+import utils.Validator;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,10 +17,10 @@ public class BaseServlet extends HttpServlet {
     protected CurrencyDAO currencyDAO = new CurrencyDAO();
     protected ExchangeRateDAO exchangeRateDAO = new ExchangeRateDAO();
     protected ModelMapper mapper = new ModelMapper();
-    protected ConverterJSON converter = new ConverterJSON();
+    protected JSONConverter converter = new JSONConverter();
     protected SuccessResponse successResponse = new SuccessResponse();
     protected ErrorResponse errorResponse = new ErrorResponse();
-    protected Validation validation = new Validation();
+    protected Validator validator = new Validator();
 
     protected void configUTF(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
         request.setCharacterEncoding("UTF-8");

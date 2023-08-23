@@ -7,7 +7,7 @@ import dto.ExchangeAmountDTO;
 import dto.ExchangeRateDTO;
 import exceptions.ErrorMessage;
 
-public class ConverterJSON {
+public class JSONConverter {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     public String convertToJSON(CurrencyDTO currencyDTO) {
