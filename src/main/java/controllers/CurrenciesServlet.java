@@ -3,7 +3,7 @@ package controllers;
 import dao.CurrencyDAO;
 import dto.CurrencyDTO;
 import dto.mappers.ConverterJSON;
-import dto.mappers.CurrencyMapper;
+import dto.mappers.ModelMapper;
 import models.Currency;
 
 import javax.servlet.*;
@@ -22,7 +22,7 @@ public class CurrenciesServlet extends HttpServlet {
         CurrencyDAO currencyDAO = new CurrencyDAO();
         ConverterJSON converter = new ConverterJSON();
         CurrencyDTO currencyDTO;
-        CurrencyMapper currencyMapper = new CurrencyMapper();
+        ModelMapper modelMapper = new ModelMapper();
 
         response.setContentType("application/json; charset=UTF-8");
         PrintWriter pw = response.getWriter();
@@ -35,7 +35,7 @@ public class CurrenciesServlet extends HttpServlet {
         }
         String[] jsonArray = new String[currencies.size()];
         for (int i = 0; i < jsonArray.length; i++) {
-            currencyDTO = currencyMapper.getCurrencyDTO(currencies.get(i));
+            currencyDTO = modelMapper.getCurrencyDTO(currencies.get(i));
             jsonArray[i] = converter.convertToJSON(currencyDTO);
         }
         pw.println(Arrays.toString(jsonArray));

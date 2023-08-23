@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.CurrencyDTO;
+import dto.ExchangeAmountDTO;
 import dto.ExchangeRateDTO;
 import models.Currency;
 import models.ExchangeRate;
@@ -25,6 +26,15 @@ public class ConverterJSON {
         String json;
         try {
             json = objectMapper.writeValueAsString(exchangeRateDTO);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return json;
+    }
+    public String convertToJSON(ExchangeAmountDTO exchangeAmountDTO) {
+        String json;
+        try {
+            json = objectMapper.writeValueAsString(exchangeAmountDTO);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

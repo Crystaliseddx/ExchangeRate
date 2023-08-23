@@ -3,7 +3,7 @@ package controllers;
 import dao.ExchangeRateDAO;
 import dto.ExchangeRateDTO;
 import dto.mappers.ConverterJSON;
-import dto.mappers.ExchangeRateMapper;
+import dto.mappers.ModelMapper;
 import models.ExchangeRate;
 
 import javax.servlet.*;
@@ -22,7 +22,7 @@ public class ExchangeRatesServlet extends HttpServlet {
         ExchangeRateDAO exchangeRateDAO = new ExchangeRateDAO();
         ConverterJSON converter = new ConverterJSON();
         ExchangeRateDTO exchangeRateDTO;
-        ExchangeRateMapper exchangeRateMapper = new ExchangeRateMapper();
+        ModelMapper modelMapper = new ModelMapper();
 
         response.setContentType("application/json; charset=UTF-8");
         PrintWriter pw = response.getWriter();
@@ -35,7 +35,7 @@ public class ExchangeRatesServlet extends HttpServlet {
         }
         String[] jsonArray = new String[exchangeRates.size()];
         for (int i = 0; i < jsonArray.length; i++) {
-            exchangeRateDTO = exchangeRateMapper.getExchangeRateDTO(exchangeRates.get(i));
+            exchangeRateDTO = modelMapper.getExchangeRateDTO(exchangeRates.get(i));
             jsonArray[i] = converter.convertToJSON(exchangeRateDTO);
         }
         pw.println(Arrays.toString(jsonArray));

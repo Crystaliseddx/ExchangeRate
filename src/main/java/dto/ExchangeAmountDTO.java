@@ -1,14 +1,13 @@
-package models;
+package dto;
 
-public class ExchangeRate {
-    private int id;
+import models.Currency;
+
+public class ExchangeAmountDTO {
     private Currency baseCurrency;
     private Currency targetCurrency;
     private double rate;
-
-    public void setId(int id) {
-        this.id = id;
-    }
+    private double amount;
+    private double convertedAmount;
 
 
     public void setRate(double rate) {
@@ -23,8 +22,12 @@ public class ExchangeRate {
         this.targetCurrency = targetCurrency;
     }
 
-    public int getId() {
-        return id;
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public void setConvertedAmount(double convertedAmount) {
+        this.convertedAmount = convertedAmount;
     }
 
 
@@ -39,4 +42,13 @@ public class ExchangeRate {
     public Currency getTargetCurrency() {
         return targetCurrency;
     }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public double getConvertedAmount() {
+        return convertedAmount;
+    }
 }
+

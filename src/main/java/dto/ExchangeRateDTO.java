@@ -4,22 +4,12 @@ import models.Currency;
 
 public class ExchangeRateDTO {
     private int id;
-    private int baseCurrencyId;
     private Currency baseCurrency;
-    private int targetCurrencyId;
     private Currency targetCurrency;
     private double rate;
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public void setBaseCurrencyId(int baseCurrencyId) {
-        this.baseCurrencyId = baseCurrencyId;
-    }
-
-    public void setTargetCurrencyId(int targetCurrencyId) {
-        this.targetCurrencyId = targetCurrencyId;
     }
 
     public void setRate(double rate) {
@@ -36,14 +26,6 @@ public class ExchangeRateDTO {
 
     public int getId() {
         return id;
-    }
-
-    public int getBaseCurrencyId() {
-        return baseCurrencyId;
-    }
-
-    public int getTargetCurrencyId() {
-        return targetCurrencyId;
     }
 
     public double getRate() {

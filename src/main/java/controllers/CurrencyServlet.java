@@ -3,7 +3,7 @@ package controllers;
 import dao.CurrencyDAO;
 import dto.CurrencyDTO;
 import dto.mappers.ConverterJSON;
-import dto.mappers.CurrencyMapper;
+import dto.mappers.ModelMapper;
 import models.Currency;
 
 import javax.servlet.*;
@@ -21,7 +21,7 @@ public class CurrencyServlet extends HttpServlet {
         CurrencyDAO currencyDAO = new CurrencyDAO();
         ConverterJSON converter = new ConverterJSON();
         CurrencyDTO currencyDTO;
-        CurrencyMapper currencyMapper = new CurrencyMapper();
+        ModelMapper modelMapper = new ModelMapper();
 
         response.setContentType("application/json; charset=UTF-8");
         PrintWriter pw = response.getWriter();
@@ -35,7 +35,7 @@ public class CurrencyServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        currencyDTO = currencyMapper.getCurrencyDTO(currency);
+        currencyDTO = modelMapper.getCurrencyDTO(currency);
         String json = converter.convertToJSON(currencyDTO);
         pw.println(json);
     }
@@ -44,7 +44,7 @@ public class CurrencyServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         ConverterJSON converter = new ConverterJSON();
-        CurrencyMapper currencyMapper = new CurrencyMapper();
+        ModelMapper modelMapper = new ModelMapper();
         CurrencyDAO currencyDAO = new CurrencyDAO();
         PrintWriter pw = response.getWriter();
 
@@ -57,13 +57,13 @@ public class CurrencyServlet extends HttpServlet {
             }
         }
         CurrencyDTO currencyDTO = converter.convertToCurrencyDTO(body.toString());
-        Currency currency = currencyMapper.getCurrency(currencyDTO);
+        Currency currency = modelMapper.getCurrency(currencyDTO);
         try {
             currency = currencyDAO.saveCurrency(currency);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        currencyDTO = currencyMapper.getCurrencyDTO(currency);
+        currencyDTO = modelMapper.getCurrencyDTO(currency);
         String json = converter.convertToJSON(currencyDTO);
         pw.println(json);
     }

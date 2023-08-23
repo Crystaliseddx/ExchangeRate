@@ -3,7 +3,7 @@ package controllers;
 import dao.ExchangeRateDAO;
 import dto.ExchangeRateDTO;
 import dto.mappers.ConverterJSON;
-import dto.mappers.ExchangeRateMapper;
+import dto.mappers.ModelMapper;
 import models.ExchangeRate;
 
 import javax.servlet.ServletException;
@@ -23,7 +23,7 @@ public class ExchangeRateServlet extends HttpServlet {
         ExchangeRateDAO exchangeRateDAO = new ExchangeRateDAO();
         ConverterJSON converter = new ConverterJSON();
         ExchangeRateDTO exchangeRateDTO;
-        ExchangeRateMapper exchangeRateMapper = new ExchangeRateMapper();
+        ModelMapper modelMapper = new ModelMapper();
 
         response.setContentType("application/json; charset=UTF-8");
         PrintWriter pw = response.getWriter();
@@ -40,7 +40,7 @@ public class ExchangeRateServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        exchangeRateDTO = exchangeRateMapper.getExchangeRateDTO(exchangeRate);
+        exchangeRateDTO = modelMapper.getExchangeRateDTO(exchangeRate);
         String json = converter.convertToJSON(exchangeRateDTO);
         pw.println(json);
     }
@@ -50,7 +50,7 @@ public class ExchangeRateServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         ConverterJSON converter = new ConverterJSON();
         ExchangeRateDAO exchangeRateDAO = new ExchangeRateDAO();
-        ExchangeRateMapper exchangeRateMapper = new ExchangeRateMapper();
+        ModelMapper modelMapper = new ModelMapper();
         PrintWriter pw = response.getWriter();
 
         StringBuilder body = new StringBuilder();
@@ -63,13 +63,13 @@ public class ExchangeRateServlet extends HttpServlet {
             }
         }
         ExchangeRateDTO exchangeRateDTO = converter.convertToExchangeRateDTO(body.toString());
-        ExchangeRate exchangeRate = exchangeRateMapper.getExchangeRate(exchangeRateDTO);
+        ExchangeRate exchangeRate = modelMapper.getExchangeRate(exchangeRateDTO);
         try {
             exchangeRate = exchangeRateDAO.saveExchangeRate(exchangeRate);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        exchangeRateDTO = exchangeRateMapper.getExchangeRateDTO(exchangeRate);
+        exchangeRateDTO = modelMapper.getExchangeRateDTO(exchangeRate);
         String json = converter.convertToJSON(exchangeRateDTO);
         pw.println(json);
     }
@@ -86,7 +86,7 @@ public class ExchangeRateServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         ConverterJSON converter = new ConverterJSON();
         ExchangeRateDAO exchangeRateDAO = new ExchangeRateDAO();
-        ExchangeRateMapper exchangeRateMapper = new ExchangeRateMapper();
+        ModelMapper modelMapper = new ModelMapper();
         PrintWriter pw = response.getWriter();
 
         StringBuilder body = new StringBuilder();
@@ -99,13 +99,13 @@ public class ExchangeRateServlet extends HttpServlet {
             }
         }
         ExchangeRateDTO exchangeRateDTO = converter.convertToExchangeRateDTO(body.toString());
-        ExchangeRate exchangeRate = exchangeRateMapper.getExchangeRate(exchangeRateDTO);
+        ExchangeRate exchangeRate = modelMapper.getExchangeRate(exchangeRateDTO);
         try {
             exchangeRate = exchangeRateDAO.updateExchangeRate(exchangeRate);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        exchangeRateDTO = exchangeRateMapper.getExchangeRateDTO(exchangeRate);
+        exchangeRateDTO = modelMapper.getExchangeRateDTO(exchangeRate);
         String json = converter.convertToJSON(exchangeRateDTO);
         pw.println(json);
     }

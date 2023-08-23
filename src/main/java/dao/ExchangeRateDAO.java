@@ -82,11 +82,9 @@ public class ExchangeRateDAO {
             targetCurrency.setSign(resultSet.getString("tcSign"));
 
             exchangeRate.setId(resultSet.getInt("ID"));
-            exchangeRate.setBaseCurrencyId(resultSet.getInt("BaseCurrencyID"));
-            exchangeRate.setTargetCurrencyId(resultSet.getInt("TargetCurrencyID"));
-            exchangeRate.setRate(resultSet.getDouble("Rate"));
             exchangeRate.setBaseCurrency(baseCurrency);
             exchangeRate.setTargetCurrency(targetCurrency);
+            exchangeRate.setRate(resultSet.getDouble("Rate"));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -97,10 +95,10 @@ public class ExchangeRateDAO {
         Connection connection = connectionPool.getConnection();
         try {
             PreparedStatement statement = connection.prepareStatement
-                    ("INSERT INTO exchangerates (BASECURRENCYID, TARGETCURRENCYID, RATE) VALUES (?, ?, ?)");
+                    ("INSERT INTO exchangerates (BaseCurrencyID, TargetCurrencyID, Rate) VALUES (?, ?, ?)");
 
-            statement.setInt(1, exchangeRate.getBaseCurrencyId());
-            statement.setInt(2, exchangeRate.getTargetCurrencyId());
+            statement.setInt(1, exchangeRate.getBaseCurrency().getId());
+            statement.setInt(2, exchangeRate.getTargetCurrency().getId());
             statement.setDouble(3, exchangeRate.getRate());
 
             statement.executeUpdate();
@@ -118,11 +116,15 @@ public class ExchangeRateDAO {
         Connection connection = connectionPool.getConnection();
         try {
             PreparedStatement statement = connection.prepareStatement
-                    ("UPDATE exchangerates SET Rate = ? WHERE BaseCurrencyID = ? AND TargetCurrencyID = ?");
+                    ("UPDATE exchangerates SET Rate = ? FROM exchangerates er " +
+                            "JOIN currencies bc ON (er.BaseCurrencyID = bc.ID) " +
+                            "JOIN currencies tc ON (er.TargetCurrencyID = tc.ID) " +
+                            "WHERE bcCode = ? AND tcCode = ?");
+
 
             statement.setDouble(1, exchangeRate.getRate());
-            statement.setInt(2, exchangeRate.getBaseCurrencyId());
-            statement.setInt(3, exchangeRate.getTargetCurrencyId());
+            statement.setString(2, exchangeRate.getBaseCurrency().getCode());
+            statement.setString(3, exchangeRate.getTargetCurrency().getCode());
 
             statement.executeUpdate();
 
