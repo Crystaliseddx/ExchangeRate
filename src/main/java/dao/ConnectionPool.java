@@ -1,5 +1,8 @@
 package dao;
 
+import exceptions.DBIsNotAvailableException;
+import exceptions.ErrorMessage;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -40,13 +43,13 @@ public class ConnectionPool {
         }
         return connection;
     }
-    public Connection getConnection() throws SQLException {
+    public Connection getConnection() throws DBIsNotAvailableException {
         Connection connection;
         if (usedConnections.size() < POOL_SIZE) {
             connection = connectionPool.remove(connectionPool.size() - 1);
             usedConnections.add(connection);
         } else {
-            throw new SQLException();
+            throw new DBIsNotAvailableException(new ErrorMessage("База данных недоступна"));
         }
         return connection;
     }

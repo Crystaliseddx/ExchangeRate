@@ -1,4 +1,4 @@
-package dto.mappers;
+package utils;
 
 import dto.CurrencyDTO;
 import dto.ExchangeAmountDTO;

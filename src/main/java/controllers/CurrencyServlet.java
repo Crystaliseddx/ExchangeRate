@@ -1,53 +1,50 @@
 package controllers;
 
-import dao.CurrencyDAO;
 import dto.CurrencyDTO;
-import dto.mappers.ConverterJSON;
-import dto.mappers.ModelMapper;
+import exceptions.CurrencyNotFoundException;
+import exceptions.DBIsNotAvailableException;
+import exceptions.ErrorMessage;
+import exceptions.NoCurrencyCodeException;
 import models.Currency;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Reader;
-import java.sql.SQLException;
 
 @WebServlet(name = "CurrencyServlet", value = "/currency/*")
-public class CurrencyServlet extends HttpServlet {
+public class CurrencyServlet extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        CurrencyDAO currencyDAO = new CurrencyDAO();
-        ConverterJSON converter = new ConverterJSON();
-        CurrencyDTO currencyDTO;
-        ModelMapper modelMapper = new ModelMapper();
-
-        response.setContentType("application/json; charset=UTF-8");
-        PrintWriter pw = response.getWriter();
+        configUTF(request, response);
 
         String[] urlArray = request.getRequestURL().toString().split("/");
         String url = urlArray[urlArray.length-1].toUpperCase();
 
-        Currency currency = null;
-        try {
-            currency = currencyDAO.getCurrencyByCode(url);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        if (validation.isValidCurrencyCode(url)) {
+            Currency currency;
+            try {
+                currency = currencyDAO.getCurrencyByCode(url);
+                if (currency.getCode() == null) {
+                    CurrencyNotFoundException e = new CurrencyNotFoundException(new ErrorMessage("Валюта не найдена"));
+                    errorResponse.sendErrorResponse(response, e, 404);
+                } else {
+                    String json = converter.convertToJSON(mapper.getCurrencyDTO(currency));
+                    successResponse.sendSuccessResponse(response, json);
+                }
+            } catch (DBIsNotAvailableException e) {
+                errorResponse.sendErrorResponse(response, e, 500);
+            }
+        } else {
+            NoCurrencyCodeException e= new NoCurrencyCodeException(new ErrorMessage("Код валюты отсутствует в адресе"));
+            errorResponse.sendErrorResponse(response, e, 400);
         }
-        currencyDTO = modelMapper.getCurrencyDTO(currency);
-        String json = converter.convertToJSON(currencyDTO);
-        pw.println(json);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setCharacterEncoding("UTF-8");
-        ConverterJSON converter = new ConverterJSON();
-        ModelMapper modelMapper = new ModelMapper();
-        CurrencyDAO currencyDAO = new CurrencyDAO();
-        PrintWriter pw = response.getWriter();
-
+        configUTF(request, response);
         StringBuilder body = new StringBuilder();
         char[] buffer = new char[1024];
         int readChars;
@@ -57,14 +54,12 @@ public class CurrencyServlet extends HttpServlet {
             }
         }
         CurrencyDTO currencyDTO = converter.convertToCurrencyDTO(body.toString());
-        Currency currency = modelMapper.getCurrency(currencyDTO);
-        try {
-            currency = currencyDAO.saveCurrency(currency);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        currencyDTO = modelMapper.getCurrencyDTO(currency);
+        Currency currency = mapper.getCurrency(currencyDTO);
+
+        currency = currencyDAO.saveCurrency(currency);
+
+        currencyDTO = mapper.getCurrencyDTO(currency);
         String json = converter.convertToJSON(currencyDTO);
-        pw.println(json);
+
     }
 }

@@ -1,13 +1,11 @@
-package dto.mappers;
+package utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.CurrencyDTO;
 import dto.ExchangeAmountDTO;
 import dto.ExchangeRateDTO;
-import models.Currency;
-import models.ExchangeRate;
+import exceptions.ErrorMessage;
 
 public class ConverterJSON {
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -35,6 +33,15 @@ public class ConverterJSON {
         String json;
         try {
             json = objectMapper.writeValueAsString(exchangeAmountDTO);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return json;
+    }
+    public String convertToJSON(ErrorMessage message) {
+        String json;
+        try {
+            json = objectMapper.writeValueAsString(message);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

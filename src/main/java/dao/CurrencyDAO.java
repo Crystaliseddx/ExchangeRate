@@ -1,5 +1,6 @@
 package dao;
 
+import exceptions.DBIsNotAvailableException;
 import models.Currency;
 
 import java.sql.*;
@@ -10,9 +11,8 @@ import java.util.List;
 public class CurrencyDAO {
     private static ConnectionPool connectionPool = ConnectionPool.createConnectionPool();
 
-    public List<Currency> getCurrencies() throws SQLException {
+    public List<Currency> getCurrencies() throws DBIsNotAvailableException {
         Connection connection = connectionPool.getConnection();
-
         List<Currency> currencies = new ArrayList<>();
         try {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM currencies");
@@ -29,7 +29,7 @@ public class CurrencyDAO {
         return currencies;
     }
 
-    public Currency getCurrencyByCode (String code) throws SQLException {
+    public Currency getCurrencyByCode (String code) throws DBIsNotAvailableException {
         Connection connection = connectionPool.getConnection();
         Currency currency;
         try {
@@ -57,7 +57,7 @@ public class CurrencyDAO {
         return currency;
     }
 
-    public Currency saveCurrency(Currency currency) throws SQLException {
+    public Currency saveCurrency(Currency currency) throws DBIsNotAvailableException {
         Connection connection = connectionPool.getConnection();
         try {
             PreparedStatement statement = connection.prepareStatement
