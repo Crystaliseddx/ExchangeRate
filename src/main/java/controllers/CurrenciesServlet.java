@@ -35,14 +35,7 @@ public class CurrenciesServlet extends BaseServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         configUTF(request, response);
-        StringBuilder body = new StringBuilder();
-        char[] buffer = new char[1024];
-        int readChars;
-        try(Reader reader = request.getReader()){
-            while ((readChars = reader.read(buffer)) != -1) {
-                body.append(buffer,0, readChars);
-            }
-        }
+        StringBuilder body = getSBfromJSON(request);
         CurrencyDTO currencyDTO = converter.convertToCurrencyDTO(body.toString());
         Currency currency = mapper.getCurrency(currencyDTO);
         if (validator.isValidCurrency(currency)) {

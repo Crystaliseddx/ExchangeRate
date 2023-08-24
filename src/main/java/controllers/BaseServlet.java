@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
@@ -26,25 +27,35 @@ public class BaseServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=UTF-8");
     }
-    public void sendSuccessResponse(HttpServletResponse response, String[] jsonArray) throws IOException {
-        PrintWriter pw = response.getWriter();
-        response.setStatus(200);
-        pw.println(Arrays.toString(jsonArray));
-        pw.close();
+    protected StringBuilder getSBfromJSON(HttpServletRequest request) throws IOException {
+        StringBuilder body = new StringBuilder();
+        char[] buffer = new char[1024];
+        int readChars;
+        try(Reader reader = request.getReader()){
+            while ((readChars = reader.read(buffer)) != -1) {
+                body.append(buffer,0, readChars);
+            }
+        }
+        return body;
     }
-    public void sendSuccessResponse(HttpServletResponse response, String json) throws IOException {
-        PrintWriter pw = response.getWriter();
-        response.setStatus(200);
-        pw.println(json);
-        pw.close();
+    protected void sendSuccessResponse(HttpServletResponse response, String[] jsonArray) throws IOException {
+        try(PrintWriter pw = response.getWriter()){
+            response.setStatus(200);
+            pw.println(Arrays.toString(jsonArray));
+        }
     }
-    public void sendErrorResponse(HttpServletResponse response, BaseException exception, int status) throws IOException {
+    protected void sendSuccessResponse(HttpServletResponse response, String json) throws IOException {
+        try(PrintWriter pw = response.getWriter();) {
+            response.setStatus(200);
+            pw.println(json);
+        }
+    }
+    protected void sendErrorResponse(HttpServletResponse response, BaseException exception, int status) throws IOException {
         String json;
-        PrintWriter pw = response.getWriter();
-        response.setStatus(status);
-        json = converter.convertToJSON(exception.getErrorMessage());
-        pw.println(json);
-        pw.close();
+        try(PrintWriter pw = response.getWriter();) {
+            response.setStatus(status);
+            json = converter.convertToJSON(exception.getErrorMessage());
+            pw.println(json);
+        }
     }
-
 }

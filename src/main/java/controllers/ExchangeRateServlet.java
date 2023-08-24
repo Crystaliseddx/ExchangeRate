@@ -56,15 +56,7 @@ public class ExchangeRateServlet extends BaseServlet {
         if (validator.isValidCurrencyPair(currencyCodes)) {
             String baseCurrencyCode = currencyCodes.substring(0, 3);
             String targetCurrencyCode = currencyCodes.substring(3, 6);
-            StringBuilder body = new StringBuilder();
-            char[] buffer = new char[1024];
-            int readChars;
-
-            try (Reader reader = request.getReader()){
-                while ((readChars = reader.read(buffer)) != -1) {
-                    body.append(buffer,0, readChars);
-                }
-            }
+            StringBuilder body = getSBfromJSON(request);
             ExchangeRate exchangeRate = mapper.getExchangeRate(converter.convertToExchangeRateDTO(body.toString()));
             if (validator.isValidExchangeRateForUpd(exchangeRate)) {
                 try {
