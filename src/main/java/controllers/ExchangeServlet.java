@@ -32,15 +32,15 @@ public class ExchangeServlet extends BaseServlet {
                 Currency targetCurrency = currencyDAO.getCurrencyByCode(targetCurrencyCode);
                 ExchangeAmountDTO exchangeAmountDTO = mapper.getExchangeAmountDTO(baseCurrency, targetCurrency, rate, amount, convertedAmount);
                 String json = converter.convertToJSON(exchangeAmountDTO);
-                successResponse.sendSuccessResponse(response, json);
+                sendSuccessResponse(response, json);
             } catch (DBIsNotAvailableException e) {
-                errorResponse.sendErrorResponse(response, e, 500);
+                sendErrorResponse(response, e, 500);
             } catch (NotFoundException e) {
-                errorResponse.sendErrorResponse(response, e, 404);
+                sendErrorResponse(response, e, 404);
             }
         } else {
             InvalidRequestException e = new InvalidRequestException(new ErrorMessage("Неккоректные параметры запроса"));
-            errorResponse.sendErrorResponse(response, e, 400);
+            sendErrorResponse(response, e, 400);
         }
     }
 }

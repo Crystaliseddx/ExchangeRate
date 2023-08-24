@@ -27,9 +27,9 @@ public class ExchangeRatesServlet extends BaseServlet {
             for (int i = 0; i < jsonArray.length; i++) {
                 jsonArray[i] = converter.convertToJSON(mapper.getExchangeRateDTO(exchangeRates.get(i)));
             }
-            successResponse.sendSuccessResponse(response, jsonArray);
+            sendSuccessResponse(response, jsonArray);
         } catch (DBIsNotAvailableException e) {
-            errorResponse.sendErrorResponse(response, e, 500);
+            sendErrorResponse(response, e, 500);
         }
     }
     @Override
@@ -51,14 +51,14 @@ public class ExchangeRatesServlet extends BaseServlet {
                 exchangeRateDTO = mapper.getExchangeRateDTO(exchangeRate);
                 String json = converter.convertToJSON(exchangeRateDTO);
             } catch (DBIsNotAvailableException e) {
-                errorResponse.sendErrorResponse(response, e, 500);
+                sendErrorResponse(response, e, 500);
             } catch (NotFoundException e) {
-                errorResponse.sendErrorResponse(response, e, 409);
+                sendErrorResponse(response, e, 409);
             }
         } else {
             InvalidRequestException e = new InvalidRequestException
                     (new ErrorMessage("Предоставлено недостаточно информации для внесения валютного курса в БД"));
-            errorResponse.sendErrorResponse(response, e, 400);
+            sendErrorResponse(response, e, 400);
         }
     }
 }

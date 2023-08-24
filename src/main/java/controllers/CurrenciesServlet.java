@@ -27,9 +27,9 @@ public class CurrenciesServlet extends BaseServlet {
             for (int i = 0; i < jsonArray.length; i++) {
                 jsonArray[i] = converter.convertToJSON(mapper.getCurrencyDTO(currencies.get(i)));
             }
-            successResponse.sendSuccessResponse(response, jsonArray);
+            sendSuccessResponse(response, jsonArray);
         } catch (DBIsNotAvailableException e) {
-            errorResponse.sendErrorResponse(response, e, 500);
+            sendErrorResponse(response, e, 500);
         }
     }
     @Override
@@ -50,16 +50,16 @@ public class CurrenciesServlet extends BaseServlet {
                 currency = currencyDAO.saveCurrency(currency);
                 currencyDTO = mapper.getCurrencyDTO(currency);
                 String json = converter.convertToJSON(currencyDTO);
-                successResponse.sendSuccessResponse(response, json);
+                sendSuccessResponse(response, json);
             } catch (DBIsNotAvailableException e) {
-                errorResponse.sendErrorResponse(response, e, 500);
+                sendErrorResponse(response, e, 500);
             } catch (AlreadyExistsException e) {
-                errorResponse.sendErrorResponse(response, e, 409);
+                sendErrorResponse(response, e, 409);
             }
         } else {
             InvalidRequestException e = new InvalidRequestException(new ErrorMessage
                     ("Предоставлено недостаточно информации для внесения валюты в БД"));
-            errorResponse.sendErrorResponse(response, e, 400);
+            sendErrorResponse(response, e, 400);
         }
     }
 }

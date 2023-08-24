@@ -28,17 +28,17 @@ public class ExchangeRateServlet extends BaseServlet {
                 exchangeRate = exchangeRateDAO.getExchangeRateByCurrencyCodes(baseCurrencyCode, targetCurrencyCode);
                 if (exchangeRate.getRate() == 0) {
                     NotFoundException e = new NotFoundException(new ErrorMessage("Обменный курс для пары не найден"));
-                    errorResponse.sendErrorResponse(response, e, 404);
+                    sendErrorResponse(response, e, 404);
                 } else {
                     String json = converter.convertToJSON(mapper.getExchangeRateDTO(exchangeRate));
-                    successResponse.sendSuccessResponse(response, json);
+                    sendSuccessResponse(response, json);
                 }
             } catch (DBIsNotAvailableException e) {
-                errorResponse.sendErrorResponse(response, e, 500);
+                sendErrorResponse(response, e, 500);
             }
         } else {
             InvalidRequestException e = new InvalidRequestException(new ErrorMessage("Коды валют пары отсутствуют в адресе"));
-            errorResponse.sendErrorResponse(response, e, 400);
+            sendErrorResponse(response, e, 400);
         }
     }
     @Override
@@ -71,22 +71,22 @@ public class ExchangeRateServlet extends BaseServlet {
                     exchangeRate = exchangeRateDAO.updateExchangeRate(exchangeRate, baseCurrencyCode, targetCurrencyCode);
                     if (exchangeRate.getRate() == 0) {
                         NotFoundException e = new NotFoundException(new ErrorMessage("Обменный курс для пары не найден"));
-                        errorResponse.sendErrorResponse(response, e, 404);
+                        sendErrorResponse(response, e, 404);
                     } else {
                         String json = converter.convertToJSON(mapper.getExchangeRateDTO(exchangeRate));
-                        successResponse.sendSuccessResponse(response, json);
+                        sendSuccessResponse(response, json);
                     }
                 } catch (DBIsNotAvailableException e) {
-                    errorResponse.sendErrorResponse(response, e, 500);
+                    sendErrorResponse(response, e, 500);
                 }
             } else {
                 InvalidRequestException e = new InvalidRequestException(new ErrorMessage
                         ("Предоставлено недостаточно информации для внесения валюты в БД"));
-                errorResponse.sendErrorResponse(response, e, 400);
+                sendErrorResponse(response, e, 400);
             }
         } else {
             InvalidRequestException e = new InvalidRequestException(new ErrorMessage("Коды валют пары отсутствуют в адресе"));
-            errorResponse.sendErrorResponse(response, e, 400);
+            sendErrorResponse(response, e, 400);
         }
     }
 }

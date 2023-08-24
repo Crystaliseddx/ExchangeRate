@@ -23,17 +23,17 @@ public class CurrencyServlet extends BaseServlet {
                 currency = currencyDAO.getCurrencyByCode(url);
                 if (currency.getCode() == null) {
                     NotFoundException e = new NotFoundException(new ErrorMessage("Валюта не найдена"));
-                    errorResponse.sendErrorResponse(response, e, 404);
+                    sendErrorResponse(response, e, 404);
                 } else {
                     String json = converter.convertToJSON(mapper.getCurrencyDTO(currency));
-                    successResponse.sendSuccessResponse(response, json);
+                    sendSuccessResponse(response, json);
                 }
             } catch (DBIsNotAvailableException e) {
-                errorResponse.sendErrorResponse(response, e, 500);
+                sendErrorResponse(response, e, 500);
             }
         } else {
             InvalidRequestException e= new InvalidRequestException(new ErrorMessage("Код валюты отсутствует в адресе"));
-            errorResponse.sendErrorResponse(response, e, 400);
+            sendErrorResponse(response, e, 400);
         }
     }
 }
