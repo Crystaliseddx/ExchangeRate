@@ -1,10 +1,10 @@
 package controllers;
 
 import dto.CurrencyDTO;
-import exceptions.CurrencyAlreadyExistsException;
+import exceptions.AlreadyExistsException;
 import exceptions.DBIsNotAvailableException;
 import exceptions.ErrorMessage;
-import exceptions.NotEnoughInfoException;
+import exceptions.InvalidRequestException;
 import models.Currency;
 
 import javax.servlet.*;
@@ -53,11 +53,11 @@ public class CurrenciesServlet extends BaseServlet {
                 successResponse.sendSuccessResponse(response, json);
             } catch (DBIsNotAvailableException e) {
                 errorResponse.sendErrorResponse(response, e, 500);
-            } catch (CurrencyAlreadyExistsException e) {
+            } catch (AlreadyExistsException e) {
                 errorResponse.sendErrorResponse(response, e, 409);
             }
         } else {
-            NotEnoughInfoException e = new NotEnoughInfoException(new ErrorMessage
+            InvalidRequestException e = new InvalidRequestException(new ErrorMessage
                     ("Предоставлено недостаточно информации для внесения валюты в БД"));
             errorResponse.sendErrorResponse(response, e, 400);
         }

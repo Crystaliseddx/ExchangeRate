@@ -1,8 +1,6 @@
 package exceptions;
 
-import java.sql.SQLException;
-
-public class DBIsNotAvailableException extends MyException {
+public class DBIsNotAvailableException extends BaseException {
     public DBIsNotAvailableException(ErrorMessage errorMessage) {
         super(errorMessage);
     }

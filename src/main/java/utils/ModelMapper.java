@@ -48,14 +48,14 @@ public class ModelMapper {
         return exchangeRate;
     }
     public ExchangeAmountDTO getExchangeAmountDTO
-            (Currency baseCurrency, Currency targetCurrency, double rate, double amount, double covertedAmount) {
+            (Currency baseCurrency, Currency targetCurrency, double rate, double amount, double convertedAmount) {
         ExchangeAmountDTO exchangeAmountDTO = new ExchangeAmountDTO();
 
         exchangeAmountDTO.setBaseCurrency(baseCurrency);
         exchangeAmountDTO.setTargetCurrency(targetCurrency);
         exchangeAmountDTO.setRate(rate);
         exchangeAmountDTO.setAmount(amount);
-        exchangeAmountDTO.setConvertedAmount(covertedAmount);
+        exchangeAmountDTO.setConvertedAmount(convertedAmount);
 
         return exchangeAmountDTO;
     }

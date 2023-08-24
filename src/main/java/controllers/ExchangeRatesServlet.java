@@ -1,20 +1,18 @@
 package controllers;
 
 import dto.ExchangeRateDTO;
-import exceptions.CurrencyPairNotFoundException;
 import exceptions.DBIsNotAvailableException;
 import exceptions.ErrorMessage;
-import exceptions.NotEnoughInfoException;
+import exceptions.InvalidRequestException;
+import exceptions.NotFoundException;
 import models.ExchangeRate;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @WebServlet(name = "ExchangeRatesServlet", value = "/exchangeRates")
@@ -54,11 +52,11 @@ public class ExchangeRatesServlet extends BaseServlet {
                 String json = converter.convertToJSON(exchangeRateDTO);
             } catch (DBIsNotAvailableException e) {
                 errorResponse.sendErrorResponse(response, e, 500);
-            } catch (CurrencyPairNotFoundException e) {
+            } catch (NotFoundException e) {
                 errorResponse.sendErrorResponse(response, e, 409);
             }
         } else {
-            NotEnoughInfoException e = new NotEnoughInfoException
+            InvalidRequestException e = new InvalidRequestException
                     (new ErrorMessage("Предоставлено недостаточно информации для внесения валютного курса в БД"));
             errorResponse.sendErrorResponse(response, e, 400);
         }

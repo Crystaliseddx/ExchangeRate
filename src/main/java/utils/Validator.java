@@ -44,4 +44,24 @@ public class Validator {
         }
         return isValidExchangeRate;
     }
+    public boolean isValidExchangeRateForUpd(ExchangeRate exchangeRate) {
+        boolean isValidExchangeRateForUpd = true;
+        if (exchangeRate.getRate() == 0) {
+            isValidExchangeRateForUpd = false;
+        }
+        return isValidExchangeRateForUpd;
+    }
+    public boolean isValidExchangeRequest(String baseCurrencyCode, String targetCurrencyCode, String amount) {
+        boolean isValidExchangeRequest = true;
+        if (baseCurrencyCode.length() != 3 || targetCurrencyCode.length() != 3) {
+            isValidExchangeRequest = false;
+        } else if (!baseCurrencyCode.matches("[a-zA-Z]") || !targetCurrencyCode.matches("[a-zA-Z]")) {
+            isValidExchangeRequest = false;
+        } else if (!amount.matches("\\d+(\\.\\d+)?")) {
+            isValidExchangeRequest = false;
+        } else if (Double.parseDouble(amount) <= 0) {
+            isValidExchangeRequest = false;
+        }
+        return isValidExchangeRequest;
+    }
 }

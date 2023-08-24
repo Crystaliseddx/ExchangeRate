@@ -26,4 +26,5 @@ public class BaseServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=UTF-8");
     }
+
 }

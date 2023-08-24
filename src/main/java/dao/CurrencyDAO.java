@@ -1,6 +1,6 @@
 package dao;
 
-import exceptions.CurrencyAlreadyExistsException;
+import exceptions.AlreadyExistsException;
 import exceptions.DBIsNotAvailableException;
 import exceptions.ErrorMessage;
 import models.Currency;
@@ -59,7 +59,7 @@ public class CurrencyDAO {
         return currency;
     }
 
-    public Currency saveCurrency(Currency currency) throws DBIsNotAvailableException, CurrencyAlreadyExistsException {
+    public Currency saveCurrency(Currency currency) throws DBIsNotAvailableException, AlreadyExistsException {
         Connection connection = connectionPool.getConnection();
         try {
             PreparedStatement statement = connection.prepareStatement
@@ -72,7 +72,7 @@ public class CurrencyDAO {
             statement.executeUpdate();
 
         } catch (SQLException e) {
-            throw new CurrencyAlreadyExistsException(new ErrorMessage("Валюта с таким кодом уже существует"));
+            throw new AlreadyExistsException(new ErrorMessage("Валюта с таким кодом уже существует"));
         } finally {
             connectionPool.releaseConnection(connection);
         }
