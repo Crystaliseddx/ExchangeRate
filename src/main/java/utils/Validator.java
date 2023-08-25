@@ -19,6 +19,8 @@ public class Validator {
             isValidCurrency = false;
         } else if(currency.getName() == null) {
             isValidCurrency = false;
+        } else if (!currency.getName().matches("[a-zA-Z]")) {
+            isValidCurrency = false;
         } else if (currency.getSign() == null) {
             isValidCurrency = false;
         }
@@ -41,12 +43,16 @@ public class Validator {
             isValidExchangeRate = false;
         } else if (exchangeRate.getRate() == 0) {
             isValidExchangeRate = false;
+        } else if (!String.valueOf(exchangeRate.getRate()).matches("\\d+(\\.\\d+)?")){
+            isValidExchangeRate = false;
         }
         return isValidExchangeRate;
     }
     public boolean isValidExchangeRateForUpd(ExchangeRate exchangeRate) {
         boolean isValidExchangeRateForUpd = true;
         if (exchangeRate.getRate() == 0) {
+            isValidExchangeRateForUpd = false;
+        } else if (!String.valueOf(exchangeRate.getRate()).matches("\\d+(\\.\\d+)?")){
             isValidExchangeRateForUpd = false;
         }
         return isValidExchangeRateForUpd;

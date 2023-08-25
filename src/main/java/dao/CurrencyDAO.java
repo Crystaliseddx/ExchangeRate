@@ -72,7 +72,7 @@ public class CurrencyDAO {
             statement.executeUpdate();
 
         } catch (SQLException e) {
-            throw new AlreadyExistsException(new ErrorMessage("Валюта с таким кодом уже существует"));
+            throw new AlreadyExistsException(new ErrorMessage("Валюта с таким кодом уже существует или предоставленный код не соответствует формату"));
         } finally {
             connectionPool.releaseConnection(connection);
         }

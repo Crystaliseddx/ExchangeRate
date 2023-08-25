@@ -6,6 +6,8 @@ import dto.ExchangeRateDTO;
 import models.Currency;
 import models.ExchangeRate;
 
+import java.text.DecimalFormat;
+
 public class ModelMapper {
     public CurrencyDTO getCurrencyDTO(Currency currency) {
         CurrencyDTO currencyDTO = new CurrencyDTO();
@@ -50,12 +52,13 @@ public class ModelMapper {
     public ExchangeAmountDTO getExchangeAmountDTO
             (Currency baseCurrency, Currency targetCurrency, double rate, double amount, double convertedAmount) {
         ExchangeAmountDTO exchangeAmountDTO = new ExchangeAmountDTO();
+        DecimalFormat df = new DecimalFormat("#.000");
 
         exchangeAmountDTO.setBaseCurrency(baseCurrency);
         exchangeAmountDTO.setTargetCurrency(targetCurrency);
-        exchangeAmountDTO.setRate(rate);
-        exchangeAmountDTO.setAmount(amount);
-        exchangeAmountDTO.setConvertedAmount(convertedAmount);
+        exchangeAmountDTO.setRate(Double.parseDouble(df.format(String.valueOf(rate))));
+        exchangeAmountDTO.setAmount(Double.parseDouble(df.format(String.valueOf(amount))));
+        exchangeAmountDTO.setConvertedAmount(Double.parseDouble(df.format(String.valueOf(convertedAmount))));
 
         return exchangeAmountDTO;
     }
