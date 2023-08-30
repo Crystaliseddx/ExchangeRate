@@ -22,7 +22,7 @@ public class ConnectionPool {
     }
 
     public static void createConnectionPool() {
-        String url = "C:\\Users\\Konstantin\\Desktop\\Projects\\CurrencyExchange\\src\\main\\resources\\Currencies.db";
+        String url = "/opt/tomcat/webapps/CurrencyExchange-1.0/WEB-INF/classes/Currencies.db";
         List<Connection> pool = new ArrayList<>(POOL_SIZE);
         for (int i = 0; i < POOL_SIZE; i++) {
             pool.add(createConnection(url));
