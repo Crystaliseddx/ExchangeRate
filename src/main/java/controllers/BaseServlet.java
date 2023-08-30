@@ -27,32 +27,36 @@ public class BaseServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=UTF-8");
     }
-    protected StringBuilder getSBfromJSON(HttpServletRequest request) throws IOException {
+
+    protected StringBuilder getSBFromJSON(HttpServletRequest request) throws IOException {
         StringBuilder body = new StringBuilder();
         char[] buffer = new char[1024];
         int readChars;
-        try(Reader reader = request.getReader()){
+        try (Reader reader = request.getReader()) {
             while ((readChars = reader.read(buffer)) != -1) {
-                body.append(buffer,0, readChars);
+                body.append(buffer, 0, readChars);
             }
         }
         return body;
     }
+
     protected void sendSuccessResponse(HttpServletResponse response, String[] jsonArray) throws IOException {
-        try(PrintWriter pw = response.getWriter()){
+        try (PrintWriter pw = response.getWriter()) {
             response.setStatus(200);
             pw.println(Arrays.toString(jsonArray));
         }
     }
+
     protected void sendSuccessResponse(HttpServletResponse response, String json) throws IOException {
-        try(PrintWriter pw = response.getWriter();) {
+        try (PrintWriter pw = response.getWriter();) {
             response.setStatus(200);
             pw.println(json);
         }
     }
+
     protected void sendErrorResponse(HttpServletResponse response, BaseException exception, int status) throws IOException {
         String json;
-        try(PrintWriter pw = response.getWriter();) {
+        try (PrintWriter pw = response.getWriter();) {
             response.setStatus(status);
             json = converter.convertToJSON(exception.getErrorMessage());
             pw.println(json);

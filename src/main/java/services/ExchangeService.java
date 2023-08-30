@@ -6,26 +6,26 @@ import exceptions.ErrorMessage;
 import exceptions.NotFoundException;
 import models.ExchangeRate;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.Optional;
+
 public class ExchangeService {
-    public double exchangeCurrency(String baseCurrencyCode, String targetCurrencyCode, double amount) throws DBIsNotAvailableException, NotFoundException {
+    public BigDecimal exchangeCurrency(String baseCurrencyCode, String targetCurrencyCode, BigDecimal amount) throws DBIsNotAvailableException, NotFoundException {
         ExchangeRateDAO exchangeRateDAO = new ExchangeRateDAO();
-        ExchangeRate exchangeRate = new ExchangeRate();
-        double convertedAmount = 0;
-        if (!(exchangeRateDAO.getExchangeRateByCurrencyCodes(baseCurrencyCode, targetCurrencyCode).getRate() == 0)) {
-            exchangeRate = exchangeRateDAO.getExchangeRateByCurrencyCodes(baseCurrencyCode, targetCurrencyCode);
-            convertedAmount = amount * exchangeRate.getRate();
-        } else if (!(exchangeRateDAO.getExchangeRateByCurrencyCodes(targetCurrencyCode, baseCurrencyCode).getRate() == 0)) {
-            exchangeRate = exchangeRateDAO.getExchangeRateByCurrencyCodes(baseCurrencyCode, targetCurrencyCode);
-            convertedAmount = amount / exchangeRate.getRate();
-        } else if (!(exchangeRateDAO.getExchangeRateByCurrencyCodes("USD", baseCurrencyCode).getRate() == 0)
-                && !(exchangeRateDAO.getExchangeRateByCurrencyCodes("USD", targetCurrencyCode).getRate() == 0)) {
-            ExchangeRate exchangeRateToUSD = exchangeRateDAO.getExchangeRateByCurrencyCodes
-                    ("USD", baseCurrencyCode);
-            ExchangeRate exchangeRateFromUSD = exchangeRateDAO.getExchangeRateByCurrencyCodes
-                    ("USD", targetCurrencyCode);
-            convertedAmount = amount / exchangeRateToUSD.getRate() * exchangeRateFromUSD.getRate();
+        Optional<ExchangeRate> exchangeRateOptional = exchangeRateDAO.getExchangeRateByCurrencyCodes(baseCurrencyCode, targetCurrencyCode);
+        Optional<ExchangeRate> reverseExchangeRateOptional = exchangeRateDAO.getExchangeRateByCurrencyCodes(targetCurrencyCode, baseCurrencyCode);
+        Optional<ExchangeRate> exchangeRateUSDBaseOptional = exchangeRateDAO.getExchangeRateByCurrencyCodes("USD", baseCurrencyCode);
+        Optional<ExchangeRate> exchangeRateUSDTargetOptional = exchangeRateDAO.getExchangeRateByCurrencyCodes("USD", targetCurrencyCode);
+        BigDecimal convertedAmount;
+        if (exchangeRateOptional.isPresent()) {
+            convertedAmount = amount.multiply(exchangeRateOptional.get().getRate());
+        } else if (reverseExchangeRateOptional.isPresent()) {
+            convertedAmount = amount.divide(reverseExchangeRateOptional.get().getRate(), MathContext.DECIMAL128);
+        } else if (exchangeRateUSDBaseOptional.isPresent() && exchangeRateUSDTargetOptional.isPresent()) {
+            convertedAmount = amount.divide(exchangeRateUSDBaseOptional.get().getRate(), MathContext.DECIMAL128).multiply(exchangeRateUSDTargetOptional.get().getRate());
         } else {
-            throw new NotFoundException(new ErrorMessage("Одна из валют или курс обмена для этих валют отсутствуют в БД"));
+            throw new NotFoundException(new ErrorMessage("Курс обмена для указанных валют отсутствует в БД"));
         }
         return convertedAmount;
     }

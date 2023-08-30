@@ -1,28 +1,29 @@
 package controllers;
 
 import dto.ExchangeRateDTO;
-import exceptions.DBIsNotAvailableException;
-import exceptions.ErrorMessage;
-import exceptions.InvalidRequestException;
-import exceptions.NotFoundException;
+import exceptions.*;
+import models.Currency;
 import models.ExchangeRate;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-import javax.servlet.annotation.*;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.Reader;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @WebServlet(name = "ExchangeRatesServlet", value = "/exchangeRates")
 public class ExchangeRatesServlet extends BaseServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         configUTF(request, response);
-        List<ExchangeRate> exchangeRates = new ArrayList<>();
         try {
+            List<ExchangeRate> exchangeRates;
             exchangeRates = exchangeRateDAO.getExchangeRates();
+            if (exchangeRates.size() == 0) {
+                throw new NotFoundException(new ErrorMessage("В БД отсутствуют обменные курсы"));
+            }
             String[] jsonArray = new String[exchangeRates.size()];
             for (int i = 0; i < jsonArray.length; i++) {
                 jsonArray[i] = converter.convertToJSON(mapper.getExchangeRateDTO(exchangeRates.get(i)));
@@ -30,27 +31,46 @@ public class ExchangeRatesServlet extends BaseServlet {
             sendSuccessResponse(response, jsonArray);
         } catch (DBIsNotAvailableException e) {
             sendErrorResponse(response, e, 500);
+        } catch (NotFoundException e) {
+            sendErrorResponse(response, e, 404);
         }
     }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         configUTF(request, response);
-        StringBuilder body = getSBfromJSON(request);
-        ExchangeRateDTO exchangeRateDTO = converter.convertToExchangeRateDTO(body.toString());
-        ExchangeRate exchangeRate = mapper.getExchangeRate(exchangeRateDTO);
-        if (validator.isValidExchangeRate(exchangeRate)) {
-            try {
-                exchangeRate = exchangeRateDAO.saveExchangeRate(exchangeRate);
-                exchangeRateDTO = mapper.getExchangeRateDTO(exchangeRate);
-                String json = converter.convertToJSON(exchangeRateDTO);
-            } catch (DBIsNotAvailableException e) {
-                sendErrorResponse(response, e, 500);
-            } catch (NotFoundException e) {
-                sendErrorResponse(response, e, 409);
+        try {
+            StringBuilder body = getSBFromJSON(request);
+            ExchangeRate exchangeRate = mapper.getExchangeRate(converter.convertToExchangeRateDTO(body.toString()));
+            if (!validator.isValidExchangeRate(exchangeRate)) {
+                throw new InvalidRequestException(new ErrorMessage("Предоставлены некорректные данные для внесения валютного курса в БД"));
             }
-        } else {
-            InvalidRequestException e = new InvalidRequestException
-                    (new ErrorMessage("Предоставлено недостаточно информации для внесения валютного курса в БД"));
+            String baseCurrencyCode = exchangeRate.getBaseCurrency().getCode();
+            String targetCurrencyCode = exchangeRate.getTargetCurrency().getCode();
+            Optional<Currency> baseCurrencyOptional = currencyDAO.getCurrencyByCode(baseCurrencyCode);
+            Optional<Currency> targetCurrencyOptional = currencyDAO.getCurrencyByCode(targetCurrencyCode);
+            int baseCurrencyID;
+            int targetCurrencyID;
+            if (baseCurrencyOptional.isEmpty()) {
+                baseCurrencyID = -1;
+            } else {
+                baseCurrencyID = baseCurrencyOptional.get().getId();
+            }
+            if (targetCurrencyOptional.isEmpty()) {
+                targetCurrencyID = -1;
+            } else {
+                targetCurrencyID = targetCurrencyOptional.get().getId();
+            }
+            exchangeRate = exchangeRateDAO.saveExchangeRate(exchangeRate, baseCurrencyID, targetCurrencyID);
+            String json = converter.convertToJSON(mapper.getExchangeRateDTO(exchangeRate));
+            sendSuccessResponse(response, json);
+        } catch (DBIsNotAvailableException e) {
+            sendErrorResponse(response, e, 500);
+        } catch (AlreadyExistsException e) {
+            sendErrorResponse(response, e, 409);
+        } catch (NotFoundException e) {
+            sendErrorResponse(response, e, 404);
+        } catch (InvalidRequestException e) {
             sendErrorResponse(response, e, 400);
         }
     }

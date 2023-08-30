@@ -2,17 +2,14 @@ package dto;
 
 import models.Currency;
 
-public class ExchangeAmountDTO {
+import java.math.BigDecimal;
+
+public class ConvertedAmountDTO {
     private Currency baseCurrency;
     private Currency targetCurrency;
-    private double rate;
-    private double amount;
-    private double convertedAmount;
-
-
-    public void setRate(double rate) {
-        this.rate = rate;
-    }
+    private BigDecimal rate;
+    private BigDecimal amount;
+    private BigDecimal convertedAmount;
 
     public void setBaseCurrency(Currency baseCurrency) {
         this.baseCurrency = baseCurrency;
@@ -22,17 +19,16 @@ public class ExchangeAmountDTO {
         this.targetCurrency = targetCurrency;
     }
 
-    public void setAmount(double amount) {
+    public void setRate(BigDecimal rate) {
+        this.rate = rate;
+    }
+
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
-    public void setConvertedAmount(double convertedAmount) {
+    public void setConvertedAmount(BigDecimal convertedAmount) {
         this.convertedAmount = convertedAmount;
-    }
-
-
-    public double getRate() {
-        return rate;
     }
 
     public Currency getBaseCurrency() {
@@ -43,11 +39,15 @@ public class ExchangeAmountDTO {
         return targetCurrency;
     }
 
-    public double getAmount() {
+    public BigDecimal getRate() {
+        return rate;
+    }
+
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public double getConvertedAmount() {
+    public BigDecimal getConvertedAmount() {
         return convertedAmount;
     }
 }

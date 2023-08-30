@@ -1,17 +1,18 @@
 package models;
 
+import java.math.BigDecimal;
+
 public class ExchangeRate {
-    private Integer id;
+    private int id;
     private Currency baseCurrency;
     private Currency targetCurrency;
-    private Double rate;
+    private BigDecimal rate;
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-
-    public void setRate(Double rate) {
+    public void setRate(BigDecimal rate) {
         this.rate = rate;
     }
 
@@ -27,8 +28,7 @@ public class ExchangeRate {
         return id;
     }
 
-
-    public double getRate() {
+    public BigDecimal getRate() {
         return rate;
     }
 

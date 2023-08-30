@@ -1,5 +1,6 @@
 package dao;
 
+import exceptions.AlreadyExistsException;
 import exceptions.DBIsNotAvailableException;
 import exceptions.ErrorMessage;
 import exceptions.NotFoundException;
@@ -12,16 +13,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ExchangeRateDAO {
-    private static ConnectionPool connectionPool = ConnectionPool.createConnectionPool();
-
     public List<ExchangeRate> getExchangeRates() throws DBIsNotAvailableException {
-        Connection connection = connectionPool.getConnection();
+        ConnectionPool.checkConnectionPool();
+        Connection connection = ConnectionPool.getConnection();
         List<ExchangeRate> exchangeRates = new ArrayList<>();
+        boolean resultSetIsNotEmpty = true;
         try {
             PreparedStatement statement = connection.prepareStatement
-                    ("SELECT er.ID, er.BaseCurrencyID, er.TargetCurrencyID, er.Rate, " +
+                    ("SELECT er.ID erID, er.BaseCurrencyID, er.TargetCurrencyID, er.Rate erRate, " +
                             "bc.ID bcID, bc.Code bcCode, bc.FullName bcFullName, bc.Sign bcSign, " +
                             "tc.ID tcID, tc.Code tcCode, tc.FullName tcFullName, tc.Sign tcSign " +
                             "FROM exchangerates er " +
@@ -29,114 +31,128 @@ public class ExchangeRateDAO {
                             "JOIN currencies tc ON (er.TargetCurrencyID = tc.ID)");
 
             ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                ExchangeRate exchangeRate = getExchangeRate(resultSet);
-                exchangeRates.add(exchangeRate);
+            while (resultSetIsNotEmpty) {
+                Optional<ExchangeRate> exchangeRateOptional = getExchangeRate(resultSet);
+                if (exchangeRateOptional.isEmpty()) {
+                    resultSetIsNotEmpty = false;
+                    break;
+                }
+                exchangeRates.add(exchangeRateOptional.get());
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
-            connectionPool.releaseConnection(connection);
+            ConnectionPool.releaseConnection(connection);
         }
         return exchangeRates;
     }
 
-    public ExchangeRate getExchangeRateByCurrencyCodes(String baseCurrencyCode, String targetCurrencyCode) throws DBIsNotAvailableException {
-        Connection connection = connectionPool.getConnection();
-        ExchangeRate exchangeRate = new ExchangeRate();
+    public Optional<ExchangeRate> getExchangeRateByCurrencyCodes(String baseCurrencyCode, String targetCurrencyCode) throws DBIsNotAvailableException {
+        ConnectionPool.checkConnectionPool();
+        Connection connection = ConnectionPool.getConnection();
+        Optional<ExchangeRate> exchangeRateOptional;
         try {
             PreparedStatement statement = connection.prepareStatement
-                    ("SELECT * FROM exchangerates er " +
+                    ("SELECT er.ID erID, er.BaseCurrencyID, er.TargetCurrencyID, er.Rate erRate, " +
+                            "bc.ID bcID, bc.Code bcCode, bc.FullName bcFullName, bc.Sign bcSign, " +
+                            "tc.ID tcID, tc.Code tcCode, tc.FullName tcFullName, tc.Sign tcSign " +
+                            "FROM exchangerates er " +
                             "JOIN currencies bc ON (er.BaseCurrencyID = bc.ID) " +
                             "JOIN currencies tc ON (er.TargetCurrencyID = tc.ID) " +
                             "WHERE bcCode = ? AND tcCode = ?");
 
             statement.setString(1, baseCurrencyCode);
             statement.setString(2, targetCurrencyCode);
-
             ResultSet resultSet = statement.executeQuery();
-            exchangeRate = getExchangeRate(resultSet);
-
+            exchangeRateOptional = getExchangeRate(resultSet);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
-            connectionPool.releaseConnection(connection);
+            ConnectionPool.releaseConnection(connection);
         }
-        return exchangeRate;
+        return exchangeRateOptional;
     }
 
-    private ExchangeRate getExchangeRate(ResultSet resultSet) {
+    private Optional<ExchangeRate> getExchangeRate(ResultSet resultSet) {
         ExchangeRate exchangeRate = new ExchangeRate();
         Currency baseCurrency = new Currency();
         Currency targetCurrency = new Currency();
-
         try {
-            baseCurrency.setId(resultSet.getInt("bcID"));
-            baseCurrency.setCode(resultSet.getString("bcCode"));
-            baseCurrency.setName(resultSet.getString("bcFullName"));
-            baseCurrency.setSign(resultSet.getString("bcSign"));
+            if (!resultSet.next()) {
+                return Optional.empty();
+            } else {
+                baseCurrency.setId(resultSet.getInt("bcID"));
+                baseCurrency.setCode(resultSet.getString("bcCode"));
+                baseCurrency.setName(resultSet.getString("bcFullName"));
+                baseCurrency.setSign(resultSet.getString("bcSign"));
 
-            targetCurrency.setId(resultSet.getInt("tcID"));
-            targetCurrency.setCode(resultSet.getString("tcCode"));
-            targetCurrency.setName(resultSet.getString("tcFullName"));
-            targetCurrency.setSign(resultSet.getString("tcSign"));
+                targetCurrency.setId(resultSet.getInt("tcID"));
+                targetCurrency.setCode(resultSet.getString("tcCode"));
+                targetCurrency.setName(resultSet.getString("tcFullName"));
+                targetCurrency.setSign(resultSet.getString("tcSign"));
 
-            exchangeRate.setId(resultSet.getInt("ID"));
-            exchangeRate.setBaseCurrency(baseCurrency);
-            exchangeRate.setTargetCurrency(targetCurrency);
-            exchangeRate.setRate(resultSet.getDouble("Rate"));
+                exchangeRate.setId(resultSet.getInt("erID"));
+                exchangeRate.setBaseCurrency(baseCurrency);
+                exchangeRate.setTargetCurrency(targetCurrency);
+                exchangeRate.setRate(resultSet.getBigDecimal("erRate"));
+
+                return Optional.of(exchangeRate);
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return exchangeRate;
     }
 
-    public ExchangeRate saveExchangeRate(ExchangeRate exchangeRate) throws DBIsNotAvailableException, NotFoundException {
-        Connection connection = connectionPool.getConnection();
-        CurrencyDAO currencyDAO = new CurrencyDAO();
-        String baseCurrencyCode = exchangeRate.getBaseCurrency().getCode();
-        String targetCurrencyCode = exchangeRate.getTargetCurrency().getCode();
-        Currency baseCurrency = currencyDAO.getCurrencyByCode(baseCurrencyCode);
-        Currency targetCurrency = currencyDAO.getCurrencyByCode(targetCurrencyCode);
+    public ExchangeRate saveExchangeRate(ExchangeRate exchangeRate, int baseCurrencyID, int targetCurrencyID) throws DBIsNotAvailableException, AlreadyExistsException, NotFoundException {
+        ConnectionPool.checkConnectionPool();
+        Connection connection = ConnectionPool.getConnection();
         try {
             PreparedStatement statement = connection.prepareStatement
                     ("INSERT INTO exchangerates (BaseCurrencyID, TargetCurrencyID, Rate) VALUES (?, ?, ?)");
 
-            statement.setInt(1, baseCurrency.getId());
-            statement.setInt(2, targetCurrency.getId());
-            statement.setDouble(3, exchangeRate.getRate());
-
+            statement.setInt(1, baseCurrencyID);
+            statement.setInt(2, targetCurrencyID);
+            statement.setBigDecimal(3, exchangeRate.getRate());
             statement.executeUpdate();
-
         } catch (SQLException e) {
-            throw new NotFoundException(new ErrorMessage("Валютная пара с таким кодом уже существует"));
+            if (baseCurrencyID == -1 && targetCurrencyID == -1) {
+                throw new NotFoundException(new ErrorMessage("Базовая и целевая валюты отсутствуют в БД"));
+            } else if (baseCurrencyID == -1) {
+                throw new NotFoundException(new ErrorMessage("Базовая валюта отсутствует в БД"));
+            } else if (targetCurrencyID == -1) {
+                throw new NotFoundException(new ErrorMessage("Целевая валюта отсутствует в БД"));
+            } else {
+                throw new AlreadyExistsException(new ErrorMessage("Валютная пара с таким кодом уже существует"));
+            }
         } finally {
-            connectionPool.releaseConnection(connection);
+            ConnectionPool.releaseConnection(connection);
         }
-        return exchangeRate = getExchangeRateByCurrencyCodes(baseCurrencyCode, targetCurrencyCode);
+        String baseCurrencyCode = exchangeRate.getBaseCurrency().getCode();
+        String targetCurrencyCode = exchangeRate.getTargetCurrency().getCode();
+        return getExchangeRateByCurrencyCodes(baseCurrencyCode, targetCurrencyCode).get();
     }
-    public ExchangeRate updateExchangeRate(ExchangeRate exchangeRate, String baseCurrencyCode, String targetCurrencyCode) throws DBIsNotAvailableException {
-        Connection connection = connectionPool.getConnection();
+
+    public Optional<ExchangeRate> updateExchangeRate(ExchangeRate exchangeRate, String baseCurrencyCode, String targetCurrencyCode) throws DBIsNotAvailableException {
+        ConnectionPool.checkConnectionPool();
+        Connection connection = ConnectionPool.getConnection();
         try {
             PreparedStatement statement = connection.prepareStatement
                     ("UPDATE exchangerates SET Rate = ? FROM exchangerates er " +
                             "JOIN currencies bc ON (er.BaseCurrencyID = bc.ID) " +
                             "JOIN currencies tc ON (er.TargetCurrencyID = tc.ID) " +
-                            "WHERE bc.Code = ? AND tc.Code = ?");
+                            "WHERE bc.Code = ? AND tc.Code = ? " +
+                            "AND exchangerates.BaseCurrencyID = er.BaseCurrencyID " +
+                            "AND exchangerates.TargetCurrencyID = er.TargetCurrencyID");
 
-
-            statement.setDouble(1, exchangeRate.getRate());
+            statement.setBigDecimal(1, exchangeRate.getRate());
             statement.setString(2, baseCurrencyCode);
             statement.setString(3, targetCurrencyCode);
-
             statement.executeUpdate();
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
-            connectionPool.releaseConnection(connection);
+            ConnectionPool.releaseConnection(connection);
         }
-        return getExchangeRateByCurrencyCodes
-                (exchangeRate.getBaseCurrency().getCode(), exchangeRate.getTargetCurrency().getCode());
+        return getExchangeRateByCurrencyCodes(baseCurrencyCode, targetCurrencyCode);
     }
 }

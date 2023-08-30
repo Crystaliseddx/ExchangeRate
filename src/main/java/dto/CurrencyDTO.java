@@ -1,12 +1,12 @@
 package dto;
 
 public class CurrencyDTO {
-    private Integer id;
+    private int id;
     private String code;
     private String name;
     private String sign;
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
