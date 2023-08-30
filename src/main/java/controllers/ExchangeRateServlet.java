@@ -28,7 +28,7 @@ public class ExchangeRateServlet extends BaseServlet {
             String baseCurrencyCode = currencyCodes.substring(0, 3);
             String targetCurrencyCode = currencyCodes.substring(3, 6);
             Optional<ExchangeRate> exchangeRateOptional = exchangeRateDAO.getExchangeRateByCurrencyCodes(baseCurrencyCode, targetCurrencyCode);
-            ExchangeRate exchangeRate = exchangeRateOptional.orElseThrow(() -> new NotFoundException(new ErrorMessage("Обменный курс для пары валют не найден")));
+            ExchangeRate exchangeRate = exchangeRateOptional.orElseThrow(() -> new NotFoundException(new ErrorMessage("Курс обмена для указанных валют отсутствует в БД")));
             String json = converter.convertToJSON(mapper.getExchangeRateDTO(exchangeRate));
             sendSuccessResponse(response, json);
         } catch (DBIsNotAvailableException e) {
@@ -65,7 +65,7 @@ public class ExchangeRateServlet extends BaseServlet {
                 throw new InvalidRequestException(new ErrorMessage("Предоставлены некорректные данные для обновления валютного курса в БД"));
             }
             Optional<ExchangeRate> exchangeRateOptional = exchangeRateDAO.updateExchangeRate(exchangeRate, baseCurrencyCode, targetCurrencyCode);
-            exchangeRate = exchangeRateOptional.orElseThrow(() -> new NotFoundException(new ErrorMessage("Обменный курс для пары не найден")));
+            exchangeRate = exchangeRateOptional.orElseThrow(() -> new NotFoundException(new ErrorMessage("Курс обмена для указанных валют отсутствует в БД")));
             String json = converter.convertToJSON(mapper.getExchangeRateDTO(exchangeRate));
             sendSuccessResponse(response, json);
         } catch (DBIsNotAvailableException e) {
