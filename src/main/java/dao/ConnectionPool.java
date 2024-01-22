@@ -4,6 +4,8 @@ import exceptions.DBIsNotAvailableException;
 import exceptions.ErrorMessage;
 import org.sqlite.SQLiteConfig;
 
+import java.io.File;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -22,15 +24,19 @@ public class ConnectionPool {
     }
 
     public static void createConnectionPool() {
-        String url = "/opt/tomcat/webapps/CurrencyExchange-1.0/WEB-INF/classes/Currencies.db";
+
+        ClassLoader classLoader = ConnectionPool.class.getClassLoader();
+        URL resource = classLoader.getResource("Currencies.db");
+        File file = new File(resource.getFile());
+
         List<Connection> pool = new ArrayList<>(POOL_SIZE);
         for (int i = 0; i < POOL_SIZE; i++) {
-            pool.add(createConnection(url));
+            pool.add(createConnection(file.getAbsolutePath()));
         }
         connectionPool = pool;
     }
 
-    private static Connection createConnection(String url) {
+    private static Connection createConnection(String pathToDB) {
         Connection connection;
         try {
             Class.forName("org.sqlite.JDBC");
@@ -40,7 +46,7 @@ public class ConnectionPool {
         try {
             SQLiteConfig config = new SQLiteConfig();
             config.enforceForeignKeys(true);
-            connection = DriverManager.getConnection("jdbc:sqlite:" + url, config.toProperties());
+            connection = DriverManager.getConnection("jdbc:sqlite:" + pathToDB, config.toProperties());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
