@@ -1,12 +1,12 @@
 # Проект “Обмен валют”
 <p>Описание и ТЗ проекта доступно по адресу: https://zhukovsd.github.io/java-backend-learning-course/Projects/CurrencyExchange/</p>
-Приложение доступно по адресу: http://62.109.17.145:8080/CurrencyExchange-1.0/ <br>
+Приложение доступно по адресам: <br>
 
-http://62.109.17.145:8080/CurrencyExchange-1.0/currencies <br>
-http://62.109.17.145:8080/CurrencyExchange-1.0/exchangeRates <br>
-http://62.109.17.145:8080/CurrencyExchange-1.0/currency/* <br>
-http://62.109.17.145:8080/CurrencyExchange-1.0/exchangeRate/* <br>
-http://62.109.17.145:8080/CurrencyExchange-1.0/exchange <br>
+http://82.146.60.170:9090/CurrencyExchange-1.0/currencies <br>
+http://82.146.60.170:9090/CurrencyExchange-1.0/exchangeRates <br>
+http://82.146.60.170:9090/CurrencyExchange-1.0/currency/* <br>
+http://82.146.60.170:9090/CurrencyExchange-1.0/exchangeRate/* <br>
+http://82.146.60.170:9090/CurrencyExchange-1.0/exchange <br>
 
 <h2>REST API для описания валют и обменных курсов. </h2> Позволяет просматривать и редактировать списки валют и обменных курсов, и совершать расчёт конвертации произвольных сумм из одной валюты в другую. </p>
 <p>Веб-интерфейс для проекта не подразумевается.</p>
